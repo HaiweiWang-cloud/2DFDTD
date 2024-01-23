@@ -1,5 +1,5 @@
 class TMField {
-    constructor(Nx, Ny, dt, h) {
+    constructor(Nx, Ny, dt, h, periodicX, periodicY) {
         // Assuming nonpermeable media.
         this.Nx = Nx;
         this.Ny = Ny;
@@ -14,6 +14,9 @@ class TMField {
 
         this.Ca = [];
         this.Cb = [];
+
+        this.periodicX = periodicX ? 1 : 0;
+        this.periodicY = periodicY ? 1 : 0;
 
         this.n = 0;
 
@@ -40,12 +43,14 @@ class TMField {
         // Dirichlet boundary conditions
         // y-hi
         for (let i=0; i<this.Nx; i++) {
-            this.Hx[i*N+N-1] += this.Ez[i*N+N-1] - 0;            
+            const Eout = this.periodicY * this.Ez[i*N];
+            this.Hx[i*N+N-1] += this.Ez[i*N+N-1] - Eout;            
         }
 
         // x-hi
         for (let j=0; j<this.Ny; j++) {
-            this.Hy[(this.Nx-1)*N+j] += 0 - this.Ez[(this.Nx-1)*N+j];
+            const Eout = this.periodicX * this.Ez[j]
+            this.Hy[(this.Nx-1)*N+j] += Eout - this.Ez[(this.Nx-1)*N+j];
         }
 
         // Update Ez
@@ -59,16 +64,18 @@ class TMField {
         // Dirichlet boundary conditions
         // y-lo
         for (let i=1; i<this.Nx; i++) {
-            this.Ez[i*N] = this.Ca[this.mediaEz[i*N]] * this.Ez[i*N] + this.Cb[this.mediaEz[i*N]] * (this.Hy[i*N]-this.Hy[(i-1)*N]+ 0 -this.Hx[i*N]);
+            const HxOut = this.periodicY * this.Hx[i*N+N-1];
+            this.Ez[i*N] = this.Ca[this.mediaEz[i*N]] * this.Ez[i*N] + this.Cb[this.mediaEz[i*N]] * (this.Hy[i*N]-this.Hy[(i-1)*N] + HxOut -this.Hx[i*N]);
         }
 
         // x-lo
         for (let j=1; j<this.Ny; j++) {
-            this.Ez[j] = this.Ca[this.mediaEz[j]] * this.Ez[j] + this.Cb[this.mediaEz[j]] * (this.Hy[j]- 0 +this.Hx[j-1]-this.Hx[j]);
+            const HyOut = this.periodicX * this.Hy[(this.Nx-1) * N + j]
+            this.Ez[j] = this.Ca[this.mediaEz[j]] * this.Ez[j] + this.Cb[this.mediaEz[j]] * (this.Hy[j] - HyOut +this.Hx[j-1]-this.Hx[j]);
         }
 
         //y-lo and x-lo
-        this.Ez[0] = this.Ca[this.mediaEz[0]] * this.Ez[0] + this.Cb[this.mediaEz[0]] * (this.Hy[0] - 0 + 0 - this.Hx[0]);
+        this.Ez[0] = this.Ca[this.mediaEz[0]] * this.Ez[0] + this.Cb[this.mediaEz[0]] * (this.Hy[0] - this.periodicX * this.Hy[(this.Nx-1) * N] + this.periodicY * this.Hx[N-1] - this.Hx[0]);
 
         this.n++;
     }

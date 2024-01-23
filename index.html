@@ -13,7 +13,7 @@
         <canvas id="myCanvas"></canvas>
     </div>
 
-    <script src="js/TEField.js"></script>
+    <script src="js/TMField.js"></script>
     <script src="js/math/point.js"></script>
     <script src="js/math/utils.js"></script>
     <script src="js/controller.js"></script>
@@ -30,7 +30,7 @@
         const h = 0.5;
 
         const controller = new Controller(myCanvas);
-        controller.initialiseField(TM, N, N, dt, h);
+        controller.initialiseField(TM, N, N, dt, h, {periodicX: true, periodicY: true});
         let deltaTime = 0;
         let lastTime = 0;
         const updateInterval = 100;

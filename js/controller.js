@@ -17,11 +17,11 @@ class Controller {
         this.#addEventListeners();
     }
 
-    initialiseField(polarisation, Nx, Ny, dt, h) {
+    initialiseField(polarisation, Nx, Ny, dt, h, {periodicX=false, periodicY=false} = {}) {
         if (polarisation == TE) {
             this.field = new TEField(Nx, Ny, dt, h);
         } else if (polarisation == TM) {
-            this.field = new TMField(Nx, Ny, dt, h);
+            this.field = new TMField(Nx, Ny, dt, h, periodicX, periodicY);
         }
 
         this.pxsX = Math.floor(this.canvas.width / Nx);
