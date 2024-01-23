@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2D FDTD in JavaScript</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <div class="canvas-container" id="simContainer">
+        <p>TImestep: <span id="timestepDisplay"></span></p>
+        <canvas id="myCanvas"></canvas>
+    </div>
+
+    <script src="js/TEField.js"></script>
+    <script src="js/math/point.js"></script>
+    <script src="js/math/utils.js"></script>
+    <script src="js/controller.js"></script>
+    <script src="js/gaussianSource.js"></script>
+    <script src="js/visualisation/colormesh.js"></script>
+    <script src="js/visualisation/magma.js"></script>
+    <script src="js/visualisation/jet.js"></script>
+    <script src="js/visualisation/twilight.js"></script>
+    
+    <script>
+        myCanvas.width = myCanvas.height = 400;
+        const N = 400;
+        const dt = 0.25;
+        const h = 0.5;
+
+        const controller = new Controller(myCanvas);
+        controller.initialiseField(TM, N, N, dt, h);
+        let deltaTime = 0;
+        let lastTime = 0;
+        const updateInterval = 100;
+        let updateTimer = 0;
+        
+        function animate(timestamp) {
+            deltaTime = timestamp - lastTime;
+            lastTime = timestamp;
+
+            if (updateTimer > updateInterval) {
+                controller.applySources();
+                controller.field.update();
+                controller.draw();
+                timestepDisplay.innerText = controller.field.n;
+                updateTimer = 0;
+            } else {
+                updateTimer += deltaTime;
+            }
+
+            requestAnimationFrame(animate);
+        }
+
+        animate(0);
+    </script>
+</body>
+</html>

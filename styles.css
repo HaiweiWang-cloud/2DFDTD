@@ -1,0 +1,38 @@
+* {
+    margin: 0;
+}
+
+body {
+    text-align: center;
+    font-family: Arial;
+}
+
+.canvas-container {
+    position: relative;
+    margin: auto;
+}
+
+#myCanvas {
+    touch-action: none;
+    background-color: black;
+}
+
+#editorCanvas {
+    touch-action: none;
+    background-color: black;
+}
+
+#sourceParameters {
+    position: absolute;
+    display: block;
+    /* top: 50%;
+    left: 25%; */
+    width: fit-content;
+    max-width: 100px;
+    background-color: white;
+    border: 2px solid black;
+}
+
+#sourceParameters input {
+    width: 80px;
+}
