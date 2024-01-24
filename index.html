@@ -30,19 +30,29 @@
         const h = 0.5;
 
         const controller = new Controller(myCanvas);
-        controller.initialiseField(TM, N, N, dt, h, {periodicX: true, periodicY: true});
+        controller.initialiseField(TM, N, N, dt, h, {periodicX: true, periodicY: false});
+        controller.field.calculateUpdateCoefficients(4, 0);
+        /* for (let i=0; i<N; i++) {
+            for (let j=N/4; j<3*N/4; j++) {
+                controller.field.mediaEz[i*N+j] = 1;
+            }
+        } */
         let deltaTime = 0;
         let lastTime = 0;
         const updateInterval = 100;
         let updateTimer = 0;
+
+        const stepsPerInterval = 4;
         
         function animate(timestamp) {
             deltaTime = timestamp - lastTime;
             lastTime = timestamp;
 
             if (updateTimer > updateInterval) {
-                controller.applySources();
-                controller.field.update();
+                for (let n=0; n<stepsPerInterval; n++) {
+                    controller.applySources();
+                    controller.field.update();
+                }
                 controller.draw();
                 timestepDisplay.innerText = controller.field.n;
                 updateTimer = 0;
