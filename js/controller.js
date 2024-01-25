@@ -31,8 +31,8 @@ class Controller {
     applySources() {
         const N = this.field.Ny;
         for (const source of this.sources) {
-            this.field.Ezx[Math.floor(source.x*N+source.y)] = 0.5*source.getValue(this.field.n);
-            this.field.Ezy[Math.floor(source.x*N+source.y)] = 0.5*source.getValue(this.field.n);
+            this.field.Ezx[Math.floor(source.x*N+source.y)] += 0.5*source.getValue(this.field.n);
+            this.field.Ezy[Math.floor(source.x*N+source.y)] += 0.5*source.getValue(this.field.n);
         }
     }
 
@@ -99,7 +99,7 @@ class Controller {
         } else if (this.selected) {
             this.selected = null;
         } else {
-            this.selected = new GaussianSource(this.mouse.x, this.mouse.y, 1, 20, this.field.n + 6*20);
+            this.selected = new SineSource(this.mouse.x, this.mouse.y, 1, 120, 0);
             this.sources.push(this.selected);
         }
     }

@@ -43,7 +43,7 @@ class TMFieldPMLBerenger {
 
     calculatePMLUpdateCoefficients() {
         for (let i=0; i < this.hPML; i++) {
-            const sigma = ((i+1) / (this.hPML+1))**3;
+            const sigma = 10*((i+1) / (this.hPML+1))**3;
             this.CaPML.push((1-0.5*sigma*this.dt) / (1+0.5*sigma*this.dt));
             this.CbPML.push((this.dt / this.h)**2 / (1+0.5*sigma*this.dt));
             this.DaPML.push((1-0.5*sigma*this.dt) / (1+0.5*sigma*this.dt));
