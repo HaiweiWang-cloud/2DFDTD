@@ -17,11 +17,11 @@ class Controller {
         this.#addEventListeners();
     }
 
-    initialiseField(polarisation, Nx, Ny, dt, h, {periodicX=false, periodicY=false} = {}) {
+    initialiseField(polarisation, Nx, Ny, dt, h) {
         if (polarisation == TE) {
             this.field = new TEField(Nx, Ny, dt, h);
         } else if (polarisation == TM) {
-            this.field = new TMField(Nx, Ny, dt, h, periodicX, periodicY);
+            this.field = new TMFieldPMLBerenger(Nx, Ny, dt, h);
         }
 
         this.pxsX = Math.floor(this.canvas.width / Nx);
@@ -31,7 +31,8 @@ class Controller {
     applySources() {
         const N = this.field.Ny;
         for (const source of this.sources) {
-            this.field.Ez[Math.floor(source.x*N+source.y)] = source.getValue(this.field.n);
+            this.field.Ezx[Math.floor(source.x*N+source.y)] = 0.5*source.getValue(this.field.n);
+            this.field.Ezy[Math.floor(source.x*N+source.y)] = 0.5*source.getValue(this.field.n);
         }
     }
 
@@ -42,6 +43,7 @@ class Controller {
     }
 
     drawScalar() {
+        this.field.updateTotalEField();
         colormesh(this.ctx, this.canvas.width, this.canvas.height, this.field.Ez, this.field.Nx, this.field.Ny, this.cmScalar.getValue.bind(this.cmScalar), {max: 1, min: -1});
     }
 
@@ -97,7 +99,7 @@ class Controller {
         } else if (this.selected) {
             this.selected = null;
         } else {
-            this.selected = new GaussianSource(this.mouse.x, this.mouse.y, 2, 20, this.field.n + 6*20);
+            this.selected = new GaussianSource(this.mouse.x, this.mouse.y, 1, 20, this.field.n + 6*20);
             this.sources.push(this.selected);
         }
     }

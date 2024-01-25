@@ -7,11 +7,7 @@ class TMField {
         this.h = h;
         this.num = Nx * Ny;
 
-        this.tx0 = 0;
-        this.tx1 = 0;
-        this.ty0 = 50;
-        this.ty1 = 0;
-        this.phi = 0;
+        this.
 
         this.Ez = new Float32Array(this.num); // Normalised
         this.Hx = new Float32Array(this.num);
@@ -47,7 +43,8 @@ class TMField {
     }
 
     update() {
-        const N = this.Ny;
+        const N = this.Ny; 
+        const duration = 50;
 
         // Update H
 
@@ -68,7 +65,7 @@ class TMField {
         
         for (let i=0; i<this.Nx-1; i++) {
             // y-lo
-            this.Hx[i*N+this.ty0-1] += Math.exp(-1 * (this.n-100)**2 / (30)**2);
+            this.Hx[i*N+this.ty0-1] += 1*Math.exp(-1 * (this.n-5*duration)**2 / (duration)**2);
             // y-hi
             //this.Hx[i*N+this.Ny-this.ty1-1] -= this.sampleIncidentE(i * this.h, (this.Ny-this.ty1-1) * this.h);
         }
@@ -104,7 +101,7 @@ class TMField {
 
         for (let i=0; i<this.Nx-1; i++) {
             // y-lo, add incident to the bottom Hx field
-            this.Ez[i*N + this.ty0 - 1] += this.Cb[this.mediaEz[i*N + this.ty0 - 1]] * this.h / this.dt * Math.exp(-1 * (this.n-100+this.h / this.dt * 0.5 - 0.5)**2 / (30)**2)// this.sampleIncidentH(i * this.h, (this.ty0 - 1 - 0.5) * this.h)* this.sphi;
+            this.Ez[i*N + this.ty0 - 1] += this.Cb[this.mediaEz[i*N + this.ty0 - 1]] * this.h / this.dt * Math.exp(-1 * (this.n-5*duration+this.h / this.dt*0.5-5)**2 / (duration)**2)// this.sampleIncidentH(i * this.h, (this.ty0 - 1 - 0.5) * this.h)* this.sphi;
             // y-hi, add incident to the top Hx field
             // this.Ez[i*N + this.Ny - this.ty1 - 1] -= this.Cb[this.mediaEz[i*N + this.Ny - this.ty1 - 1]] * this.sampleIncidentH(i * this.h, (this.Ny - this.ty1 - 1 + 0.5) * this.h) * this.sphi;
         }
