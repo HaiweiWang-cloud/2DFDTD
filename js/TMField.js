@@ -7,8 +7,6 @@ class TMField {
         this.h = h;
         this.num = Nx * Ny;
 
-        this.
-
         this.Ez = new Float32Array(this.num); // Normalised
         this.Hx = new Float32Array(this.num);
         this.Hy = new Float32Array(this.num);

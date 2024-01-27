@@ -12,6 +12,7 @@ class TMFieldPMLBerenger {
         this.Ezx = new Float32Array(this.num); // Normalised
         this.Ezy = new Float32Array(this.num);
         this.Ez = new Float32Array(this.num);
+        this.intensity = new Float32Array(this.num);
         this.Hx = new Float32Array(this.num);
         this.Hy = new Float32Array(this.num);
         this.mediaEz = new Uint8Array(this.num);

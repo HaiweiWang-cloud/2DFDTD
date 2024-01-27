@@ -23,16 +23,32 @@
     <script src="js/visualisation/colormesh.js"></script>
     <script src="js/visualisation/magma.js"></script>
     <script src="js/visualisation/jet.js"></script>
+    <script src="js/visualisation/linear.js"></script>
     <script src="js/visualisation/twilight.js"></script>
     
     <script>
-        myCanvas.width = myCanvas.height = 400;
         const N = 400;
-        const dt = 0.05;
+        const M = 600;
+        myCanvas.width = M
+        myCanvas.height = N;
+        const dt = 0.025;
         const h = 0.25;
 
         const controller = new Controller(myCanvas);
-        controller.initialiseField(TM, N, N, dt, h);
+        controller.initialiseField(TM, M, N, dt, h);
+        controller.field.calculateUpdateCoefficients(3, 0);
+        controller.field.calculateUpdateCoefficients(3, 3);
+
+        for (let i=0; i<100; i++) {
+            for (let j=N/2-50; j<N/2+50; j++) {
+                controller.field.mediaEz[i*N+j] = 2;
+            }
+        }
+        for (let i=0; i<M-50; i++) {
+            for (let j=N/2-10; j<N/2+10; j++) {
+                controller.field.mediaEz[i*N+j] = 1;
+            }
+        }
         let deltaTime = 0;
         let lastTime = 0;
         const updateInterval = 100;

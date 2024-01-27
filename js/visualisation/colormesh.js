@@ -36,10 +36,10 @@ function colormesh(ctx, width, height, field, Nx, Ny, colormap, {alpha=1, min=nu
             for (let yi = y; yi < y + pixelSize; yi++) {
                 let p = 4 * (yi * width + x);
                 for (let xi = x; xi < x + pixelSize; xi++){
-                    id.data[p++] = r;
-                    id.data[p++] = g;
-                    id.data[p++] = b;
-                    id.data[p++] = a * alpha;
+                    id.data[p++] += r * alpha;
+                    id.data[p++] += g * alpha;
+                    id.data[p++] += b * alpha;
+                    id.data[p++] += a;
                 }
             }
         }

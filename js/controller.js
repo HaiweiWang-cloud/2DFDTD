@@ -40,11 +40,16 @@ class Controller {
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         this.drawScalar();
         this.drawSelectedPoints();
+        this.drawMedia();
     }
 
     drawScalar() {
         this.field.updateTotalEField();
         colormesh(this.ctx, this.canvas.width, this.canvas.height, this.field.Ez, this.field.Nx, this.field.Ny, this.cmScalar.getValue.bind(this.cmScalar), {max: 1, min: -1});
+    }
+
+    drawMedia() {
+        colormesh(this.ctx, this.canvas.width, this.canvas.height, this.field.mediaEz, this.field.Nx, this.field.Ny, linear, {max: this.field.Ca.length, min: 0, alpha: 0.1})
     }
 
     drawSelectedPoints() {
@@ -99,7 +104,7 @@ class Controller {
         } else if (this.selected) {
             this.selected = null;
         } else {
-            this.selected = new SineSource(this.mouse.x, this.mouse.y, 1, 120, 0);
+            this.selected = new SineSource(this.mouse.x, this.mouse.y, 1, 600, 0);
             this.sources.push(this.selected);
         }
     }
