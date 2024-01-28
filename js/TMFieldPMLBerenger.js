@@ -37,6 +37,12 @@ class TMFieldPMLBerenger {
         });
     }
 
+    updateIntensity() {
+        this.Hx.forEach((HX, index) => {
+            this.intensity[index] = 0.5 * (HX**2 + this.Hy[index]**2);
+        });
+    }
+
     calculateUpdateCoefficients(epsilonRZ, sigmaZ) {
         this.Ca.push((1-0.5*sigmaZ*this.dt/epsilonRZ)/(1+0.5*sigmaZ*this.dt/epsilonRZ));
         this.Cb.push((this.dt/this.h)**2/epsilonRZ/(1+0.5*sigmaZ*this.dt/epsilonRZ)); // Normalised

@@ -6,6 +6,7 @@ class Controller {
         this.canvas = canvas;
         this.ctx = canvas.getContext("2d");
         this.cmScalar = new Twilight();
+        this.cmIntensity = new Magma();
 
         this.sources = [];
 
@@ -31,25 +32,31 @@ class Controller {
     applySources() {
         const N = this.field.Ny;
         for (const source of this.sources) {
-            this.field.Ezx[Math.floor(source.x*N+source.y)] += 0.5*source.getValue(this.field.n);
-            this.field.Ezy[Math.floor(source.x*N+source.y)] += 0.5*source.getValue(this.field.n);
+            this.field.Ezx[Math.floor(source.x*N+source.y)] += 0.5*source.getValue();
+            this.field.Ezy[Math.floor(source.x*N+source.y)] += 0.5*source.getValue();
+            source.update(1);
         }
     }
 
     draw() {
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-        this.drawScalar();
+        this.drawScalar({intensity: true});
         this.drawSelectedPoints();
         this.drawMedia();
     }
 
-    drawScalar() {
+    drawScalar({intensity=false}={}) {
         this.field.updateTotalEField();
-        colormesh(this.ctx, this.canvas.width, this.canvas.height, this.field.Ez, this.field.Nx, this.field.Ny, this.cmScalar.getValue.bind(this.cmScalar), {max: 1, min: -1});
+        if (intensity) {
+            this.field.updateIntensity();
+            colormesh(this.ctx, this.canvas.width, this.canvas.height, this.field.intensity, this.field.Nx, this.field.Ny, this.cmIntensity.getValue.bind(this.cmIntensity), {max: 1, min: 0});
+        } else {
+            colormesh(this.ctx, this.canvas.width, this.canvas.height, this.field.Ez, this.field.Nx, this.field.Ny, this.cmScalar.getValue.bind(this.cmScalar), {max: 1, min: -1});
+        }
     }
 
     drawMedia() {
-        colormesh(this.ctx, this.canvas.width, this.canvas.height, this.field.mediaEz, this.field.Nx, this.field.Ny, linear, {max: this.field.Ca.length, min: 0, alpha: 0.1})
+        colormesh(this.ctx, this.canvas.width, this.canvas.height, this.field.mediaEz, this.field.Nx, this.field.Ny, linear, {max: this.field.Ca.length, min: 0, alpha: 0.2})
     }
 
     drawSelectedPoints() {
@@ -104,7 +111,7 @@ class Controller {
         } else if (this.selected) {
             this.selected = null;
         } else {
-            this.selected = new SineSource(this.mouse.x, this.mouse.y, 1, 600, 0);
+            this.selected = new SineSource(this.mouse.x, this.mouse.y, 1, 100, Math.random() * 2 * Math.PI);
             this.sources.push(this.selected);
         }
     }

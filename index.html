@@ -31,7 +31,7 @@
         const M = 600;
         myCanvas.width = M
         myCanvas.height = N;
-        const dt = 0.025;
+        const dt = 0.05;
         const h = 0.25;
 
         const controller = new Controller(myCanvas);
@@ -40,15 +40,16 @@
         controller.field.calculateUpdateCoefficients(3, 3);
 
         for (let i=0; i<100; i++) {
-            for (let j=N/2-50; j<N/2+50; j++) {
+            for (let j=N/2-80; j<N/2+80; j++) {
                 controller.field.mediaEz[i*N+j] = 2;
             }
         }
-        for (let i=0; i<M-50; i++) {
-            for (let j=N/2-10; j<N/2+10; j++) {
+        for (let i=50; i<M-200; i++) {
+            for (let j=N/2-20; j<N/2+20; j++) {
                 controller.field.mediaEz[i*N+j] = 1;
             }
         }
+        
         let deltaTime = 0;
         let lastTime = 0;
         const updateInterval = 100;
