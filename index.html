@@ -13,7 +13,13 @@
         <canvas id="myCanvas"></canvas>
     </div>
 
+    <div class="canvas-container">
+        <canvas id="lineCanvas" style="background-color:  black;"></canvas>
+    </div>
+
     <script src="js/TMField.js"></script>
+    <script src="js/field1D.js"></script>
+    <script src="js/controller1D.js"></script>
     <script src="js/TMFieldPMLBerenger.js"></script>
     <script src="js/math/point.js"></script>
     <script src="js/math/utils.js"></script>
@@ -24,22 +30,31 @@
     <script src="js/visualisation/magma.js"></script>
     <script src="js/visualisation/jet.js"></script>
     <script src="js/visualisation/twilight.js"></script>
+    <script src="js/visualisation/lineplot.js"></script>
     
     <script>
         myCanvas.width = myCanvas.height = 400;
+        lineCanvas.width = 400;
+        lineCanvas.height = 200;
         const N = 400;
         const dt = 0.05;
         const h = 0.25;
 
         const controller = new Controller(myCanvas);
         controller.initialiseField(TM, N, N, dt, h);
+
+        const controller1D = new Controller1D(lineCanvas);
+        controller1D.initialiseField(N, h, dt);
+        controller1D.setSource(30);
+
         let deltaTime = 0;
         let lastTime = 0;
         const updateInterval = 100;
         let updateTimer = 0;
 
-        const stepsPerInterval = 4;
-        
+        const stepsPerInterval = 20;
+
+
         function animate(timestamp) {
             deltaTime = timestamp - lastTime;
             lastTime = timestamp;
@@ -48,7 +63,9 @@
                 for (let n=0; n<stepsPerInterval; n++) {
                     controller.applySources();
                     controller.field.update();
+                    controller1D.field.update();
                 }
+                controller1D.draw();
                 controller.draw();
                 timestepDisplay.innerText = controller.field.n;
                 updateTimer = 0;
