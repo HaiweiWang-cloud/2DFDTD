@@ -31,11 +31,26 @@ class Field1D {
         }
     }
 
+    sampleE(x) {
+        const i = Math.max(this.N-2, Math.min(0, Math.floor(x/this.h)));
+        const dx = x-i * this.h;
+        const t = dx/this.h;
+        return this.E[i] * t + this.E[i+1] * (1-t);
+    }
+
+    sampleH(x) {
+        const i = Math.max(this.N-2, Math.min(0, Math.floor(x/this.h - 0.5)));
+        const dx = x - i * this.h;
+        const t = dx/this.h;
+        return this.H[i] * t + this.H[i+1] * (1-t);
+    }
+
     applySource() {
-        this.E[0] = this.source.getValue(this.t);
+        this.E[0] = this.source.getValue();
     }
 
     update() {
+        this.source.update(1);
         this.applySource();
         // H field update
         for (let i=0; i<this.N; i++) {

@@ -3,12 +3,18 @@ const TM = 1;
 
 class Controller {
     constructor(canvas) {
+        // Field
+        this.sources = [];
+        
+        // Display
         this.canvas = canvas;
         this.ctx = canvas.getContext("2d");
         this.cmScalar = new Twilight();
+        this.cmIntensity = new Magma();
 
-        this.sources = [];
+        this.maxAmplitude = 1;
 
+        // Editor
         this.mouse = null;
         this.hovered = null;
         this.selected = null;
@@ -31,20 +37,38 @@ class Controller {
     applySources() {
         const N = this.field.Ny;
         for (const source of this.sources) {
+            source.update(1);
             this.field.Ezx[Math.floor(source.x*N+source.y)] += 0.5*source.getValue(this.field.n);
             this.field.Ezy[Math.floor(source.x*N+source.y)] += 0.5*source.getValue(this.field.n);
         }
     }
 
-    draw() {
+    draw({intensity=false, vector=false} = {}) {
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-        this.drawScalar();
+        this.field.updateDerived();
+        if (intensity) {
+            this.drawIntensity();
+        } else {
+            this.drawScalar();
+        }
+
+        if (vector) {
+            this.drawVector();
+        }
+
         this.drawSelectedPoints();
     }
 
     drawScalar() {
-        this.field.updateTotalEField();
-        colormesh(this.ctx, this.canvas.width, this.canvas.height, this.field.Ez, this.field.Nx, this.field.Ny, this.cmScalar.getValue.bind(this.cmScalar), {max: 1, min: -1});
+        colormesh(this.ctx, this.canvas.width, this.canvas.height, this.field.Ez, this.field.Nx, this.field.Ny, this.cmScalar.getValue.bind(this.cmScalar), {max: this.maxAmplitude, min: -this.maxAmplitude});
+    }
+
+    drawIntensity() {
+        colormesh(this.ctx, this.canvas.width, this.canvas.height, this.field.intensity, this.field.Nx, this.field.Ny, this.cmIntensity.getValue.bind(this.cmIntensity), {min: 0, max: this.maxAmplitude * this.maxAmplitude});
+    }
+
+    drawVector() {
+        vector2D(this.ctx, this.canvas.width, this.canvas.height, this.field.Hx, this.field.Hy, this.field.Nx, this.field.Ny, 16, 16, 3, {lineWidth: 1});
     }
 
     drawSelectedPoints() {
@@ -99,7 +123,7 @@ class Controller {
         } else if (this.selected) {
             this.selected = null;
         } else {
-            this.selected = new SineSource(this.mouse.x, this.mouse.y, 1, 120, 0);
+            this.selected = new SineSource(this.mouse.x, this.mouse.y, 4, 300, 0);
             this.sources.push(this.selected);
         }
     }

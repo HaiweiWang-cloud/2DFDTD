@@ -7,14 +7,17 @@ class TMFieldPMLBerenger {
         this.h = h;
         this.num = Nx * Ny;
 
-        this.hPML = 50; // PML thickness
+        this.hPML = 20; // PML thickness
 
         this.Ezx = new Float32Array(this.num); // Normalised
         this.Ezy = new Float32Array(this.num);
-        this.Ez = new Float32Array(this.num);
         this.Hx = new Float32Array(this.num);
         this.Hy = new Float32Array(this.num);
         this.mediaEz = new Uint8Array(this.num);
+
+        // Derived field quantities
+        this.Ez = new Float32Array(this.num);
+        this.intensity = new Float32Array(this.num);
 
         this.Ca = [];
         this.Cb = [];
@@ -24,15 +27,34 @@ class TMFieldPMLBerenger {
         this.DaPML = [];
         this.DbPML = [];
 
+        this.tfsfEnabled = false;
+
         this.n = 0;
 
         this.calculateUpdateCoefficients(1, 0);
         this.calculatePMLUpdateCoefficients();
     }
 
-    updateTotalEField() {
+    findProjected(x, y) {
+        return x * this.cphi + y * this.sphi;
+    }
+
+    sampleIncidentE(x, y) {
+        const d = this.findProjected(x-this.x0 * this.h,y-this.y0 * this.h);
+        return this.auxField.sampleE(d+2*this.h);
+    }
+
+    sampleIncidentH(x, y) {
+        const d = this.findProjected(x-this.x0 * this.h, y-this.y0 * this.h);
+        return this.auxField.sampleH(d+2*this.h);
+    }
+
+    updateDerived() {
         this.Ezx.forEach((xComp, index) => {
             this.Ez[index] = xComp + this.Ezy[index];
+        });
+        this.Ez.forEach((E, index) => {
+            this.intensity[index] = E * E * this.Ca[this.mediaEz[index]];
         });
     }
 
@@ -49,6 +71,42 @@ class TMFieldPMLBerenger {
             this.DaPML.push((1-0.5*sigma*this.dt) / (1+0.5*sigma*this.dt));
             this.DbPML.push(1 / (1+0.5*sigma*this.dt));
         }
+    }
+
+    setTFSF(phi, x0, x1, y0, y1) {
+        this.auxField = new Field1D(2+this.Nx+this.Ny+50, this.h, this.dt);
+        this.phi = phi;
+        this.cphi = Math.cos(phi);
+        this.sphi = Math.sin(phi);
+        this.auxField.source = new SineSource(N-1, 0, 1, 600, 0);
+        this.tfsfEnabled = true;
+        // boundaries of the total-field rectangle
+        this.x0 = x0;
+        this.y0 = y0;
+        this.x1 = x1;
+        this.y1 = y1;
+    }
+
+    computeTFSFE() {
+        // x-direction
+        for (let j=this.y0; j<this.y1+1; j++) {
+            // x-lo, add incident to the left Hy field
+            this.Ezx[this.x0*N+j] -= this.Cb[this.mediaEz[this.x0*N+j]] * this.sampleIncidentH((this.x0 - 0.5) * this.h, j * this.h) * -this.cphi;
+            
+            // x-hi, add incident to the right Hy field
+            this.Ezx[this.x1*N+j] += this.Cb[this.mediaEz[this.x1*N+j]] * this.sampleIncidentH((this.x1 + 0.5) * this.h, j * this.h) * -this.cphi;
+            
+        }
+    }
+
+    computeTFSFH() {
+        // x-direction
+        for (let j=this.y0; j<this.y1+1; j++) {
+            // x-lo, subtract incident Ez to right
+            this.Hy[(this.x0-1)*N+j] -= this.sampleIncidentE(this.x0 * this.h, j * this.h);
+            // x-hi, subtract incident Ez to left
+            this.Hy[this.x1*N+j] += this.sampleIncidentE(this.x1 * this.h, j * this.h);
+        }   
     }
 
     update() {

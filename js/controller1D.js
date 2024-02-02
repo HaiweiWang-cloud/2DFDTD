@@ -10,7 +10,7 @@ class Controller1D {
     }
 
     setSource(N) {
-        this.field.source = new SineSource(N-1, 0, 1, 100, 0);
+        this.field.source = new SineSource(N-1, 0, 1, 600, 0);
     }
 
     draw() {

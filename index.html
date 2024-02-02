@@ -7,6 +7,23 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+    <div>
+        <label for="pause">Paused</label>
+        <input type="checkbox" name="pause" id="pause">
+
+        <label for="stepsPerInterval">Steps per Update</label>
+        <input type="range" name="stepsPerInterval" id="stepsPerInterval" max="40" min="1" value="1">
+
+        <label for="showIntensity">Plot Intensity</label>
+        <input type="checkbox" name="Intensity" id="showIntensity">
+        <label for="showHField">Plot H Field
+        </label>
+        <input type="checkbox" name="HField" id="showHField">
+
+        <label for="plotAmplitude">Maximum amplitude</label>
+        <input type="number" id="plotAmplitude" value="1">
+        <button onclick="changePlotAmplitude()">Apply</button>
+    </div>
 
     <div class="canvas-container" id="simContainer">
         <p>TImestep: <span id="timestepDisplay"></span></p>
@@ -17,32 +34,32 @@
         <canvas id="lineCanvas" style="background-color:  black;"></canvas>
     </div>
 
-    <script src="js/TMField.js"></script>
-    <script src="js/field1D.js"></script>
+    <script src="js/FDTD/TMField.js"></script>
+    <script src="js/FDTD/field1D.js"></script>
     <script src="js/controller1D.js"></script>
-    <script src="js/TMFieldPMLBerenger.js"></script>
+    <script src="js/FDTD/TMFieldPMLBerenger.js"></script>
     <script src="js/math/point.js"></script>
     <script src="js/math/utils.js"></script>
     <script src="js/controller.js"></script>
-    <script src="js/gaussianSource.js"></script>
-    <script src="js/sineSource.js"></script>
+    <script src="js/FDTD/gaussianSource.js"></script>
+    <script src="js/FDTD/sineSource.js"></script>
     <script src="js/visualisation/colormesh.js"></script>
     <script src="js/visualisation/magma.js"></script>
     <script src="js/visualisation/jet.js"></script>
     <script src="js/visualisation/twilight.js"></script>
     <script src="js/visualisation/lineplot.js"></script>
+    <script src="js/visualisation/vector2D.js"></script>
     
     <script>
         myCanvas.width = myCanvas.height = 400;
         lineCanvas.width = 400;
         lineCanvas.height = 200;
         const N = 400;
-        const dt = 0.05;
+        const dt = 0.08;
         const h = 0.25;
 
         const controller = new Controller(myCanvas);
         controller.initialiseField(TM, N, N, dt, h);
-
         const controller1D = new Controller1D(lineCanvas);
         controller1D.initialiseField(N, h, dt);
         controller1D.setSource(30);
@@ -52,27 +69,31 @@
         const updateInterval = 100;
         let updateTimer = 0;
 
-        const stepsPerInterval = 20;
-
-
+        function changePlotAmplitude() {
+            controller.maxAmplitude = Number(plotAmplitude.value);
+        }
+        
         function animate(timestamp) {
             deltaTime = timestamp - lastTime;
             lastTime = timestamp;
 
+            
             if (updateTimer > updateInterval) {
-                for (let n=0; n<stepsPerInterval; n++) {
-                    controller.applySources();
-                    controller.field.update();
-                    controller1D.field.update();
+                if (!pause.checked) {
+                    for (let n=0; n<Number(stepsPerInterval.value); n++) {
+                        controller.applySources();
+                        controller.field.update();
+                        controller1D.field.update();
+                    }
                 }
                 controller1D.draw();
-                controller.draw();
+                controller.draw({intensity: showIntensity.checked, vector: showHField.checked});
                 timestepDisplay.innerText = controller.field.n;
                 updateTimer = 0;
             } else {
                 updateTimer += deltaTime;
             }
-
+            
             requestAnimationFrame(animate);
         }
 
